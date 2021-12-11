@@ -1,0 +1,350 @@
+<!-- Code from d3-graph-gallery.com -->
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<!-- Load the sankey.js function -->
+<script src="sankey.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<!-- Add style to links or they won't appear properly-->
+<style>
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: 1.;
+}
+.link:hover {
+  stroke-opacity: .5;
+}
+
+.linkText {
+  font-family:"Segoe UI";
+  font-size:8;
+  font-weight:bold;
+}
+</style> 
+
+ 
+<script>
+
+
+nodes = [
+{"node":0,"name":"nucléaire","color":"#CC0000"},
+{"node":1,"name":"hydro","color":"#0000FF"},
+{"node":2,"name":"éolien","color":"#911291"},
+{"node":3,"name":"solaire","color":"#ffd700"},
+{"node":4,"name":"géothermie","color":"#9c5704"},
+{"node":5,"name":"gaz naturel","color":"#46aaf5"},
+{"node":6,"name":"charbon","color":"#696969"},
+{"node":7,"name":"biomasse","color":"#90ee90"},
+{"node":8,"name":"pétrole","color":"#006000"},
+{"node":9,"name":"prod élec","color":"#e69a37"},
+{"node":10,"name":"électron","color":"#ffbbc7"},
+{"node":11,"name":"chauffage","color":"#ffbbc7"},
+{"node":12,"name":"eau chaude","color":"#ffbbc7"},
+{"node":13,"name":"cuisson","color":"#ffbbc7"},
+{"node":14,"name":"climatisation","color":"#ffbbc7"},
+{"node":15,"name":"industrie","color":"#ffbbc7"},
+{"node":16,"name":"transport","color":"#ffbbc7"},
+{"node":17,"name":"export","color":"#ffffff"},
+{"node":18,"name":"hors énergie","color":"#ffffff"},
+{"node":19,"name":"rejet","color":"#b9b9b9"},
+{"node":20,"name":"énergie utile","color":"#616161"}
+];
+
+flows=[
+ {"from":"prod élec","to":"rejet","value":3500,"turnpoint":0.9,"labelpos":0.5}
+,{"from":"prod élec","to":"électron","value":605,"turnpoint":0.2,"labelpos":0.95}
+,{"from":"prod élec","to":"chauffage","value":286,"turnpoint":0.2,"labelpos":0.95}
+,{"from":"prod élec","to":"eau chaude","value":125,"turnpoint":0.2,"labelpos":0.95}
+,{"from":"prod élec","to":"cuisson","value":64,"turnpoint":0.2,"labelpos":0.95}
+,{"from":"prod élec","to":"climatisation","value":90,"turnpoint":0.2,"labelpos":0.95}
+,{"from":"prod élec","to":"industrie","value":540,"turnpoint":0.2,"labelpos":0.95}
+,{"from":"prod élec","to":"transport","value":39,"turnpoint":0.2,"labelpos":0.95}
+,{"from":"prod élec","to":"export","value":144,"turnpoint":0.2,"labelpos":0.95}
+,{"from":"nucléaire","to":"prod élec","value":4300,"turnpoint":0.9,"labelpos":0.5}
+,{"from":"hydro","to":"prod élec","value":180,"turnpoint":0.10,"labelpos":0.05}
+,{"from":"éolien","to":"prod élec","value":89,"turnpoint":0.15,"labelpos":0.10}
+,{"from":"solaire","to":"prod élec","value":34,"turnpoint":0.20,"labelpos":0.15}
+,{"from":"solaire","to":"chauffage","value":6,"turnpoint":0.2,"labelpos":0.25}
+,{"from":"solaire","to":"eau chaude","value":1,"turnpoint":0.2,"labelpos":0.25}
+,{"from":"géothermie","to":"prod élec","value":16,"turnpoint":0.25,"labelpos":0.20}
+,{"from":"géothermie","to":"industrie","value":1,"turnpoint":0.5,"labelpos":0.3}
+,{"from":"gaz naturel","to":"prod élec","value":320,"turnpoint":0.30,"labelpos":0.25}
+,{"from":"gaz naturel","to":"chauffage","value":636,"turnpoint":0.4,"labelpos":0.48}
+,{"from":"gaz naturel","to":"eau chaude","value":92,"turnpoint":0.4,"labelpos":0.48}
+,{"from":"gaz naturel","to":"cuisson","value":51,"turnpoint":0.4,"labelpos":0.48}
+,{"from":"gaz naturel","to":"industrie","value":460,"turnpoint":0.4,"labelpos":0.48}
+,{"from":"gaz naturel","to":"export","value":230,"turnpoint":0.4,"labelpos":0.48}
+,{"from":"charbon","to":"prod élec","value":160,"turnpoint":0.35,"labelpos":0.30}
+,{"from":"charbon","to":"chauffage","value":3,"turnpoint":0.5,"labelpos":0.55}
+,{"from":"charbon","to":"industrie","value":230,"turnpoint":0.5,"labelpos":0.55}
+,{"from":"charbon","to":"hors énergie","value":12,"turnpoint":0.5,"labelpos":0.55}
+,{"from":"biomasse","to":"prod élec","value":170,"turnpoint":0.40,"labelpos":0.35}
+,{"from":"biomasse","to":"chauffage","value":301,"turnpoint":0.6,"labelpos":0.80}
+,{"from":"biomasse","to":"eau chaude","value":3,"turnpoint":0.6,"labelpos":0.80}
+,{"from":"biomasse","to":"transport","value":140,"turnpoint":0.6,"labelpos":0.80}
+,{"from":"biomasse","to":"export","value":14,"turnpoint":0.6,"labelpos":0.80}
+,{"from":"pétrole","to":"prod élec","value":130,"turnpoint":0.45,"labelpos":0.40}
+,{"from":"pétrole","to":"chauffage","value":265,"turnpoint":0.7,"labelpos":0.9}
+,{"from":"pétrole","to":"eau chaude","value":37,"turnpoint":0.7,"labelpos":0.9}
+,{"from":"pétrole","to":"cuisson","value":51,"turnpoint":0.7,"labelpos":0.9}
+,{"from":"pétrole","to":"industrie","value":340,"turnpoint":0.7,"labelpos":0.9}
+,{"from":"pétrole","to":"transport","value":2100,"turnpoint":0.7,"labelpos":0.9}
+,{"from":"pétrole","to":"hors énergie","value":530,"turnpoint":0.7,"labelpos":0.9}
+,{"from":"pétrole","to":"export","value":860,"turnpoint":0.7,"labelpos":0.9}
+,{"from":"électron","to":"rejet","value":121,"turnpoint":0.1,"labelpos":0.0} 
+,{"from":"chauffage","to":"rejet","value":449,"turnpoint":0.1,"labelpos":0.0}
+,{"from":"eau chaude","to":"rejet","value":155,"turnpoint":0.1,"labelpos":0.0}
+,{"from":"cuisson","to":"rejet","value":69,"turnpoint":0.1,"labelpos":0.0}
+,{"from":"climatisation","to":"rejet","value":54,"turnpoint":0.1,"labelpos":0.0}
+,{"from":"industrie","to":"rejet","value":810,"turnpoint":0.1,"labelpos":0.0}
+,{"from":"transport","to":"rejet","value":1700,"turnpoint":0.1,"labelpos":0.0}
+,{"from":"électron","to":"énergie utile","value":484,"turnpoint":0.5,"labelpos":0.4}
+,{"from":"chauffage","to":"énergie utile","value":1048,"turnpoint":0.5,"labelpos":0.4}
+,{"from":"eau chaude","to":"énergie utile","value":103,"turnpoint":0.5,"labelpos":0.4}
+,{"from":"cuisson","to":"énergie utile","value":69,"turnpoint":0.5,"labelpos":0.4}
+,{"from":"climatisation","to":"énergie utile","value":36,"turnpoint":0.5,"labelpos":0.4}
+,{"from":"industrie","to":"énergie utile","value":840,"turnpoint":0.5,"labelpos":0.4}
+,{"from":"transport","to":"énergie utile","value":490,"turnpoint":0.5,"labelpos":0.4}
+]
+
+names=[];
+nodes.forEach(function(n) { names.push(n["name"]) });
+
+links=[];
+flows.forEach(function(f) {
+	links.push({"source":names.indexOf(f["from"]),"target":names.indexOf(f["to"]),"value":f["value"],"labelpos":f["labelpos"],"turnpoint":f["turnpoint"]});
+});
+
+graph={"nodes":nodes,"links":links};
+   
+// set the dimensions and margins of the graph
+var margin = {top: 20, right: 10, bottom: 20, left: 10},
+    width = 2000 - margin.left - margin.right,
+    height = 1000 - margin.top - margin.bottom; 
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .attr("id","svg")
+    .append("g")
+    .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+
+// Set the sankey diagram properties
+var sankey = d3.sankey()
+    .nodeWidth(150)
+    .nodePadding(20)
+    .size([width, height]);
+
+  // Constructs a new Sankey generator with the default settings.
+
+sankey
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .layout(32);
+
+
+  // add in the nodes
+  var node = svg.append("g")
+    .selectAll(".node")
+    .data(graph.nodes)
+    .enter().append("g")
+      .attr("class", "node")
+      .attr("transform", function(d) { 
+			return "translate(" + d.x + "," + d.y + ")"; })
+      .call(d3.drag()
+        .subject(function(d) { 
+					return d; })
+        .on("start", function() { this.parentNode.appendChild(this); })
+        .on("drag", dragmove));
+
+
+  // add in the links 
+  var links = svg.append("g")
+    .attr("id", "grouplink" )
+    .selectAll(".link")
+    .data(graph.links)
+    .enter()
+		
+	var link=links.append("path")
+      .attr("class", "link")
+      .attr("d", sankey.link() )
+      .attr("id", function(d) { return d.source.name + "#" + d.target.name} )
+	  .style('stroke', function(d){   
+        if (d.target.name == "rejet"||d.target.name == "énergie utile") return pSBC ( 0.20, d.pathcolor=d.target.color );	
+		else return pSBC (0.0,d.pathcolor=d.source.color);
+	  }) 
+	  	  
+	  
+	  .style("fill","none") 
+ 	  .style("stroke-opacity","1.") 
+      .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+      .sort(function(a, b) { return b.source.name - a.source.name; });
+	 
+    var label=links.append("text")
+	   .attr('class','linkText')
+//      .attr("x", sankey.textx() )
+//      .attr("y", sankey.texty() )
+      .attr("x", function(d) { return d.textx; })
+	  .attr("y", function(d) { return d.texty; })
+      .attr("dy", ".35em")
+      .attr("text-anchor", "start")
+	  .attr("style","font-family:Segoe UI;font-size:12;font-weight:bold")
+      .attr("transform", null)  
+      .text(function(d) { return d.value; })
+      .style('fill',function(d) { 
+        if (d.target.name == "rejet"||d.target.name == "énergie utile") return pSBC ( 0.20, d.pathcolor=d.target.color );	
+		else return pSBC(0.0,d.source.color);
+	   });
+	   
+  // the function for moving the nodes
+  
+  // add the rectangles for the nodes
+  node
+    .append("rect")
+      .attr("height", function(d) { return d.dy; })
+      .attr("width", sankey.nodeWidth())	   
+	  .style("fill", function(d) { return d.color; })
+	  .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
+
+  // add in the title for the nodes
+    node 
+      .append("text")  
+        .attr("x", function(d) { return d.textx; })
+        .attr("y", function(d) { return d.texty;})
+        .attr("dy", ".35em")
+		.attr("style","font-family:Segoe UI;font-size:16;font-weight:bold")
+		.style("fill",function(d) { return invertColor(d.color, true); })
+		.attr("text-anchor", "middle")
+        .attr("transform", null)
+        .text(function(d) { return d.name; })
+
+  // add in the value for the nodes
+    node
+      .append("text") 
+        .attr("x", function(d) { return d.textx; })
+        .attr("y", function(d) { return d.texty + 20; })
+		.attr("style","font-family:Segoe UI;font-size:16;font-weight:bold")
+		.style("fill",function(d) { return invertColor(d.color, true); })
+		.attr("text-anchor", "middle")
+        .attr("dy", ".35em") 
+        .attr("transform", null)
+        .text(function(d) { return d.value; })
+
+  
+  function dragmove(d) {
+    d3.select(this)
+      .attr("transform",
+            "translate("
+               + d.x + ","
+               + (d.y = Math.max(
+                  0, Math.min(height - d.dy, d3.event.y))
+                 ) + ")");
+    sankey.relayout();
+    link.attr("d", sankey.link() );
+    label.attr("x", function(d) { return d.textx; } );
+    label.attr("y", function(d) { return d.texty; } );
+  }
+
+//});
+
+function pSBC(p,c0,c1,l) {
+//https://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
+    let r,g,b,P,f,t,h,i=parseInt,m=Math.round,a=typeof(c1)=="string";
+    if(typeof(p)!="number"||p<-1||p>1||typeof(c0)!="string"||(c0[0]!='r'&&c0[0]!='#')||(c1&&!a))return null;
+    if(!this.pSBCr)this.pSBCr=(d)=>{
+        let n=d.length,x={};
+        if(n>9){
+            [r,g,b,a]=d=d.split(","),n=d.length;
+            if(n<3||n>4)return null;
+            x.r=i(r[3]=="a"?r.slice(5):r.slice(4)),x.g=i(g),x.b=i(b),x.a=a?parseFloat(a):-1
+        }else{
+            if(n==8||n==6||n<4)return null;
+            if(n<6)d="#"+d[1]+d[1]+d[2]+d[2]+d[3]+d[3]+(n>4?d[4]+d[4]:"");
+            d=i(d.slice(1),16);
+            if(n==9||n==5)x.r=d>>24&255,x.g=d>>16&255,x.b=d>>8&255,x.a=m((d&255)/0.255)/1000;
+            else x.r=d>>16,x.g=d>>8&255,x.b=d&255,x.a=-1
+        }return x};
+    h=c0.length>9,h=a?c1.length>9?true:c1=="c"?!h:false:h,f=this.pSBCr(c0),P=p<0,t=c1&&c1!="c"?this.pSBCr(c1):P?{r:0,g:0,b:0,a:-1}:{r:255,g:255,b:255,a:-1},p=P?p*-1:p,P=1-p;
+    if(!f||!t)return null;
+    if(l)r=m(P*f.r+p*t.r),g=m(P*f.g+p*t.g),b=m(P*f.b+p*t.b);
+    else r=m((P*f.r**2+p*t.r**2)**0.5),g=m((P*f.g**2+p*t.g**2)**0.5),b=m((P*f.b**2+p*t.b**2)**0.5);
+    a=f.a,t=t.a,f=a>=0||t>=0,a=f?a<0?t:t<0?a:a*P+t*p:0;
+    if(h)return"rgb"+(f?"a(":"(")+r+","+g+","+b+(f?","+m(a*1000)/1000:"")+")";
+    else return"#"+(4294967296+r*16777216+g*65536+b*256+(f?m(a*255):0)).toString(16).slice(1,f?undefined:-2)
+}
+
+function invertColor(hex, bw) {
+    if (hex.indexOf('#') === 0) {
+        hex = hex.slice(1);
+    }
+    // convert 3-digit hex to 6-digits.
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    if (hex.length !== 6) {
+        throw new Error('Invalid HEX color.');
+    }
+    var r = parseInt(hex.slice(0, 2), 16),
+        g = parseInt(hex.slice(2, 4), 16),
+        b = parseInt(hex.slice(4, 6), 16);
+    if (bw) {
+        // https://stackoverflow.com/a/3943023/112731
+        return (r * 0.299 + g * 0.587 + b * 0.114) > 186
+            ? '#000000'
+            : '#FFFFFF';
+    }
+    // invert color components
+    r = (255 - r).toString(16);
+    g = (255 - g).toString(16);
+    b = (255 - b).toString(16);
+    // pad each with zeros and return
+    return "#" + padZero(r) + padZero(g) + padZero(b);
+}
+
+document.addEventListener("keydown", event => {
+  if (event.isComposing || event.keyCode === 83) {  // "s" key
+    saveSvg(document.getElementById("svg"), 'test.svg');
+    return;
+  }
+  if (event.isComposing || event.keyCode === 84) {  // "t" key
+    saveSvgImg(document.getElementById("svg"));
+    return;
+  }
+  // do something
+});
+
+
+function saveSvgImg(svg) {
+
+	img = new Image();
+	serializer = new XMLSerializer();
+    var svgStr = serializer.serializeToString(svg);
+    img.src = 'data:image/svg+xml;base64,'+window.btoa(unescape(encodeURIComponent(svgStr)));
+    window.open().document.write('<img src="' + img.src + '"/>');
+
+}
+
+function saveSvg(svgEl, name) {
+    svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    var svgData = svgEl.outerHTML;
+    var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+    var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
+    var svgUrl = URL.createObjectURL(svgBlob);
+    var downloadLink = document.createElement("a");
+    downloadLink.href = svgUrl;
+    downloadLink.download = name;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+
+</script>
