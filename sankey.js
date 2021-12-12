@@ -4,7 +4,7 @@ d3.sankey = function() {
       nodePadding = 8,
 	  nodeMinHeight = 40,
 	  linkFactor = 3,
-	  linkSlope = 400,
+	  linkSlope = 200,
 	  ky,
       size = [1, 1],
       nodes = [],
@@ -63,7 +63,8 @@ d3.sankey = function() {
     function link(d) {
 		
 		
-	var needToAdjustTurnPoint;		
+	var needToAdjustTurnPoint;
+	var k=0;
 	do {
 	  needToAdjustTurnPoint=false;		
       var x0 = d.source.x + d.source.dx,
@@ -76,7 +77,7 @@ d3.sankey = function() {
           x2 = xi(curvature),
           x3 = xi(1 - curvature);
 		  
-		  if(xB>x1) {
+		  if(xB>x1 && k++<200) {
 			  needToAdjustTurnPoint=true;
 			  d.turnpoint*=0.9;
 		  }
@@ -203,6 +204,7 @@ d3.sankey = function() {
         return (size[1] - (nodes.length - 1) * nodePadding) / d3.sum(nodes, value);
       });
 	  var needToAdjustKy;
+	  var k=0;
 	  do {
 		  needToAdjustKy=false;
 		  nodesByBreadth.forEach(function(nodes) {
@@ -212,7 +214,7 @@ d3.sankey = function() {
 			  node.dy = Math.max(node.value * ky,nodeMinHeight);
 			  sumDy+=node.dy;
 			});
-			if(sumDy+(nodes.length - 1) * nodePadding>size[1]) {
+			if(sumDy+(nodes.length - 1) * nodePadding>size[1] && k++<200) {
 				ky*=.999;
 				needToAdjustKy=true;
 			}
