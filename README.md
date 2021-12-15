@@ -5,3 +5,6 @@ International Energy Agency figures of 2017 (published in 2019) for France are c
 - https://www.statistiques.developpement-durable.gouv.fr/consommation-denergie-par-usage-du-tertiaire
 
 The code is forked from https://github.com/d3/d3-sankey and adapted to have a similar render than the original work of LLNL.
+
+France Energy Flow 2017 in PJ
+!(https://github.com/hydronyme/FranceEnergyFlow/blob/main/ENERGY_2017_FRANCE.jpg)
