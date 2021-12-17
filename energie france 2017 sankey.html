@@ -2,13 +2,15 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 
-<!-- Load d3.js -->
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
-<!-- Load the sankey.js function -->
 <script src="sankey.js"></script>
-
-<!-- Create a div where the graph will take place -->
+<div id="title">Flux d'énergie en France en 2017
+<select id="unit">
+    <option value="twh">(TWh)</option>
+    <option value="pj">(PJ)</option>
+  </select>
+</div>
 <div id="my_dataviz"></div>
 
 <!-- Add style to links or they won't appear properly-->
@@ -21,98 +23,124 @@
 .link:hover {
   stroke-opacity: .5;
 }
-
 .linkText {
   font-family:"Segoe UI";
   font-size:8;
   font-weight:bold;
+}
+#title {
+  font-family:"Segoe UI";
+  font-size:32pt;
+  font-weight:bold;
+  position: fixed; 
+  left: 33%; 
+  top: 20px;
+  width: 1000px; /* Need a specific value to work */
+}
+#unit {
+  font-family:"Segoe UI";
+  font-size:32pt;
+  font-weight:bold;
+  border: none;
+  background: none;
 }
 </style> 
 
  
 <script>
 
+var unitfactor = 0.2777777;
 
 nodes = [
-{"node":0,"name":"nucléaire","color":"#CC0000"},
-{"node":1,"name":"hydro","color":"#0000FF"},
-{"node":2,"name":"éolien","color":"#911291"},
-{"node":3,"name":"solaire","color":"#ffd700"},
-{"node":4,"name":"géothermie","color":"#9c5704"},
-{"node":5,"name":"gaz naturel","color":"#46aaf5"},
-{"node":6,"name":"charbon","color":"#696969"},
-{"node":7,"name":"biomasse","color":"#90ee90"},
-{"node":8,"name":"pétrole","color":"#006000"},
-{"node":9,"name":"prod élec","color":"#e69a37"},
-{"node":10,"name":"électron","color":"#ffbbc7"},
-{"node":11,"name":"chauffage","color":"#ffbbc7"},
-{"node":12,"name":"eau chaude","color":"#ffbbc7"},
-{"node":13,"name":"cuisson","color":"#ffbbc7"},
-{"node":14,"name":"climatisation","color":"#ffbbc7"},
-{"node":15,"name":"industrie","color":"#ffbbc7"},
-{"node":16,"name":"transport","color":"#ffbbc7"},
-{"node":17,"name":"export","color":"#ffffff"},
-{"node":18,"name":"hors énergie","color":"#ffffff"},
-{"node":19,"name":"rejet","color":"#b9b9b9"},
-{"node":20,"name":"énergie utile","color":"#616161"}
+{"name":"nucléaire","color":"#CC0000"},
+{"name":"hydraulique","color":"#0000FF"},
+{"name":"éolien","color":"#911291"},
+{"name":"solaire","color":"#ffd700"},
+{"name":"géothermie","color":"#9c5704"},
+{"name":"gaz naturel","color":"#46aaf5"},
+{"name":"charbon","color":"#696969"},
+{"name":"biomasse","color":"#90ee90"},
+{"name":"pétrole","color":"#006000"},
+{"name":"centrale électrique","color":"#a25900"},
+{"name":"réseau électrique","color":"#e69a37"},
+{"name":"usage électrique","color":"#ffbbc7"},
+{"name":"chauffage","color":"#ffbbc7"},
+{"name":"eau chaude","color":"#ffbbc7"},
+{"name":"cuisson","color":"#ffbbc7"},
+{"name":"climatisation","color":"#ffbbc7"},
+{"name":"industrie","color":"#ffbbc7"},
+{"name":"transport","color":"#ffbbc7"},
+{"name":"export","color":"#cccccc"},
+{"name":"hors énergie","color":"#cccccc"},
+{"name":"rejet","color":"#b9b9b9"},
+{"name":"énergie utile","color":"#616161"},
+{"name":"autre","color":"#ffffff"}
 ];
 
+
 flows=[
- {"from":"prod élec","to":"rejet","value":3500,"turnpoint":0.9,"labelpos":0.5}
-,{"from":"prod élec","to":"électron","value":605,"turnpoint":0.2,"labelpos":0.9}
-,{"from":"prod élec","to":"chauffage","value":286,"turnpoint":0.2,"labelpos":0.9}
-,{"from":"prod élec","to":"eau chaude","value":125,"turnpoint":0.2,"labelpos":0.9}
-,{"from":"prod élec","to":"cuisson","value":64,"turnpoint":0.2,"labelpos":0.9}
-,{"from":"prod élec","to":"climatisation","value":90,"turnpoint":0.2,"labelpos":0.9}
-,{"from":"prod élec","to":"industrie","value":540,"turnpoint":0.2,"labelpos":0.9}
-,{"from":"prod élec","to":"transport","value":39,"turnpoint":0.2,"labelpos":0.9}
-,{"from":"prod élec","to":"export","value":144,"turnpoint":0.2,"labelpos":0.9}
-,{"from":"nucléaire","to":"prod élec","value":4300,"turnpoint":0.8,"labelpos":0.5}
-,{"from":"hydro","to":"prod élec","value":180,"turnpoint":0.10,"labelpos":0.05}
-,{"from":"éolien","to":"prod élec","value":89,"turnpoint":0.15,"labelpos":0.10}
-,{"from":"solaire","to":"prod élec","value":34,"turnpoint":0.20,"labelpos":0.15}
+ {"from":"centrale électrique","to":"rejet","value":3500,"turnpoint":0.6,"labelpos":0.5}
+,{"from":"centrale électrique","to":"réseau électrique","value":1631,"turnpoint":0.3,"labelpos":0.}
+,{"from":"réseau électrique","to":"usage électrique","value":605,"turnpoint":0.2,"labelpos":0.9}
+,{"from":"réseau électrique","to":"chauffage","value":286,"turnpoint":0.2,"labelpos":0.9}
+,{"from":"réseau électrique","to":"eau chaude","value":125,"turnpoint":0.2,"labelpos":0.9}
+,{"from":"réseau électrique","to":"cuisson","value":64,"turnpoint":0.2,"labelpos":0.9}
+,{"from":"réseau électrique","to":"climatisation","value":90,"turnpoint":0.2,"labelpos":0.9}
+,{"from":"réseau électrique","to":"industrie","value":540,"turnpoint":0.2,"labelpos":0.9}
+,{"from":"réseau électrique","to":"transport","value":39,"turnpoint":0.2,"labelpos":0.9}
+,{"from":"réseau électrique","to":"export","value":144,"turnpoint":0.2,"labelpos":0.9}
+,{"from":"nucléaire","to":"centrale électrique","value":4300,"turnpoint":0.8,"labelpos":0.5}
+,{"from":"hydraulique","to":"réseau électrique","value":180,"turnpoint":0.10,"labelpos":0.05}
+,{"from":"éolien","to":"réseau électrique","value":89,"turnpoint":0.10,"labelpos":0.05}
+,{"from":"solaire","to":"réseau électrique","value":34,"turnpoint":0.10,"labelpos":0.05}
 ,{"from":"solaire","to":"chauffage","value":6,"turnpoint":0.2,"labelpos":0.25}
 ,{"from":"solaire","to":"eau chaude","value":1,"turnpoint":0.2,"labelpos":0.25}
-,{"from":"géothermie","to":"prod élec","value":16,"turnpoint":0.25,"labelpos":0.20}
+,{"from":"géothermie","to":"centrale électrique","value":16,"turnpoint":0.25,"labelpos":0.15}
 ,{"from":"géothermie","to":"industrie","value":1,"turnpoint":0.5,"labelpos":0.3}
-,{"from":"gaz naturel","to":"prod élec","value":320,"turnpoint":0.30,"labelpos":0.25}
-,{"from":"gaz naturel","to":"chauffage","value":636,"turnpoint":0.4,"labelpos":0.48}
-,{"from":"gaz naturel","to":"eau chaude","value":92,"turnpoint":0.4,"labelpos":0.48}
-,{"from":"gaz naturel","to":"cuisson","value":51,"turnpoint":0.4,"labelpos":0.48}
+,{"from":"gaz naturel","to":"centrale électrique","value":320,"turnpoint":0.30,"labelpos":0.20}
 ,{"from":"gaz naturel","to":"industrie","value":460,"turnpoint":0.4,"labelpos":0.48}
-,{"from":"gaz naturel","to":"export","value":230,"turnpoint":0.4,"labelpos":0.48}
-,{"from":"charbon","to":"prod élec","value":160,"turnpoint":0.35,"labelpos":0.30}
-,{"from":"charbon","to":"chauffage","value":3,"turnpoint":0.5,"labelpos":0.55}
-,{"from":"charbon","to":"industrie","value":230,"turnpoint":0.5,"labelpos":0.55}
-,{"from":"charbon","to":"hors énergie","value":12,"turnpoint":0.5,"labelpos":0.55}
-,{"from":"biomasse","to":"prod élec","value":170,"turnpoint":0.40,"labelpos":0.35}
-,{"from":"biomasse","to":"chauffage","value":301,"turnpoint":0.6,"labelpos":0.80}
-,{"from":"biomasse","to":"eau chaude","value":3,"turnpoint":0.6,"labelpos":0.80}
-,{"from":"biomasse","to":"transport","value":140,"turnpoint":0.6,"labelpos":0.80}
-,{"from":"biomasse","to":"export","value":14,"turnpoint":0.6,"labelpos":0.80}
-,{"from":"pétrole","to":"prod élec","value":130,"turnpoint":0.45,"labelpos":0.40}
+,{"from":"charbon","to":"centrale électrique","value":160,"turnpoint":0.35,"labelpos":0.25}
+,{"from":"biomasse","to":"centrale électrique","value":170,"turnpoint":0.40,"labelpos":0.3}
+,{"from":"pétrole","to":"centrale électrique","value":130,"turnpoint":0.45,"labelpos":0.35}
 ,{"from":"pétrole","to":"chauffage","value":265,"turnpoint":0.7,"labelpos":0.9}
 ,{"from":"pétrole","to":"eau chaude","value":37,"turnpoint":0.7,"labelpos":0.9}
 ,{"from":"pétrole","to":"cuisson","value":51,"turnpoint":0.7,"labelpos":0.9}
 ,{"from":"pétrole","to":"industrie","value":340,"turnpoint":0.7,"labelpos":0.9}
 ,{"from":"pétrole","to":"transport","value":2100,"turnpoint":0.7,"labelpos":0.9}
-,{"from":"pétrole","to":"hors énergie","value":530,"turnpoint":0.7,"labelpos":0.9}
 ,{"from":"pétrole","to":"export","value":860,"turnpoint":0.7,"labelpos":0.9}
-,{"from":"électron","to":"rejet","value":121,"turnpoint":0.1,"labelpos":0.0} 
-,{"from":"chauffage","to":"rejet","value":449,"turnpoint":0.1,"labelpos":0.0}
-,{"from":"eau chaude","to":"rejet","value":155,"turnpoint":0.1,"labelpos":0.0}
-,{"from":"cuisson","to":"rejet","value":69,"turnpoint":0.1,"labelpos":0.0}
-,{"from":"climatisation","to":"rejet","value":54,"turnpoint":0.1,"labelpos":0.0}
-,{"from":"industrie","to":"rejet","value":810,"turnpoint":0.1,"labelpos":0.0}
-,{"from":"transport","to":"rejet","value":1700,"turnpoint":0.1,"labelpos":0.0}
-,{"from":"électron","to":"énergie utile","value":484,"turnpoint":0.5,"labelpos":0.3}
+,{"from":"pétrole","to":"hors énergie","value":530,"turnpoint":0.7,"labelpos":0.9}
+,{"from":"charbon","to":"industrie","value":230,"turnpoint":0.5,"labelpos":0.65}
+,{"from":"charbon","to":"hors énergie","value":12,"turnpoint":0.5,"labelpos":0.65}
+,{"from":"gaz naturel","to":"chauffage","value":636,"turnpoint":0.4,"labelpos":0.48}
+,{"from":"gaz naturel","to":"eau chaude","value":92,"turnpoint":0.4,"labelpos":0.48}
+,{"from":"gaz naturel","to":"cuisson","value":51,"turnpoint":0.4,"labelpos":0.48}
+,{"from":"gaz naturel","to":"export","value":230,"turnpoint":0.4,"labelpos":0.48}
+,{"from":"charbon","to":"chauffage","value":3,"turnpoint":0.5,"labelpos":0.65}
+,{"from":"biomasse","to":"chauffage","value":301,"turnpoint":0.6,"labelpos":0.80}
+,{"from":"biomasse","to":"eau chaude","value":3,"turnpoint":0.6,"labelpos":0.80}
+,{"from":"biomasse","to":"industrie","value":78,"turnpoint":0.6,"labelpos":0.80}
+,{"from":"biomasse","to":"transport","value":140,"turnpoint":0.6,"labelpos":0.80}
+,{"from":"biomasse","to":"export","value":14,"turnpoint":0.6,"labelpos":0.80}
+,{"from":"usage électrique","to":"rejet","value":121,"turnpoint":0.2,"labelpos":0.0} 
+,{"from":"chauffage","to":"rejet","value":449,"turnpoint":0.2,"labelpos":0.0}
+,{"from":"eau chaude","to":"rejet","value":155,"turnpoint":0.2,"labelpos":0.0}
+,{"from":"cuisson","to":"rejet","value":97,"turnpoint":0.2,"labelpos":0.0}
+,{"from":"climatisation","to":"rejet","value":54,"turnpoint":0.2,"labelpos":0.0}
+,{"from":"industrie","to":"rejet","value":810,"turnpoint":0.2,"labelpos":0.0}
+,{"from":"transport","to":"rejet","value":1700,"turnpoint":0.2,"labelpos":0.0}
+,{"from":"usage électrique","to":"énergie utile","value":484,"turnpoint":0.5,"labelpos":0.3}
 ,{"from":"chauffage","to":"énergie utile","value":1048,"turnpoint":0.5,"labelpos":0.3}
 ,{"from":"eau chaude","to":"énergie utile","value":103,"turnpoint":0.5,"labelpos":0.3}
 ,{"from":"cuisson","to":"énergie utile","value":69,"turnpoint":0.5,"labelpos":0.3}
 ,{"from":"climatisation","to":"énergie utile","value":36,"turnpoint":0.5,"labelpos":0.3}
 ,{"from":"industrie","to":"énergie utile","value":840,"turnpoint":0.5,"labelpos":0.3}
 ,{"from":"transport","to":"énergie utile","value":490,"turnpoint":0.5,"labelpos":0.3}
+,{"from":"export","to":"autre","value":1248,"turnpoint":0.5,"labelpos":0.3}
+,{"from":"hors énergie","to":"autre","value":590,"turnpoint":0.5,"labelpos":0.3}
 ]
+
+
+nodes.forEach((n, index) => { n["node"]=index });
 
 names=[];
 nodes.forEach(function(n) { names.push(n["name"]) });
@@ -125,7 +153,7 @@ flows.forEach(function(f) {
 graph={"nodes":nodes,"links":links};
    
 // set the dimensions and margins of the graph
-var margin = {top: 20, right: 10, bottom: 20, left: 10},
+var margin = {top: 10, right: 10, bottom: 10, left: 10},
 //    width = 2000 - margin.left - margin.right,
     width = window.screen.availWidth - margin.left - margin.right,
 //   height = 1000 - margin.top - margin.bottom; 
@@ -195,17 +223,15 @@ sankey
       .sort(function(a, b) { return b.source.name - a.source.name; });
 	 
     var label=links.append("text")
-	   .attr('class','linkText')
-//      .attr("x", sankey.textx() )
-//      .attr("y", sankey.texty() )
-      .attr("x", function(d) { return d.textx; })
-	  .attr("y", function(d) { return d.texty; })
-      .attr("dy", ".35em")
-      .attr("text-anchor", "start")
-	  .attr("style","font-family:Segoe UI;font-size:12;font-weight:bold")
-      .attr("transform", null)  
-      .text(function(d) { return d.value; })
-      .style('fill',function(d) { 
+	   .attr("class","linkText")
+       .attr("x", function(d) { return d.textx; })
+	   .attr("y", function(d) { return d.texty; })
+       .attr("dy", ".35em")
+       .attr("text-anchor", "start")
+	   .attr("style","font-family:Segoe UI;font-size:12;font-weight:bold")
+       .attr("transform", null)  
+       .text(function(d) { return formatNumber(2,d.value*unitfactor); })
+       .style('fill',function(d) { 
         if (d.target.name == "rejet"||d.target.name == "énergie utile") return pSBC ( 0.20, d.pathcolor=d.target.color );	
 		else return pSBC(0.0,d.source.color);
 	   });
@@ -235,6 +261,7 @@ sankey
   // add in the value for the nodes
     node
       .append("text") 
+	  	.attr("class","nodeValue")
         .attr("x", function(d) { return d.textx; })
         .attr("y", function(d) { return d.texty + 20; })
 		.attr("style","font-family:Segoe UI;font-size:16;font-weight:bold")
@@ -242,7 +269,7 @@ sankey
 		.attr("text-anchor", "middle")
         .attr("dy", ".35em") 
         .attr("transform", null)
-        .text(function(d) { return d.value; })
+        .text(function(d) { return formatNumber(2,d.value*unitfactor); })
 
   
   function dragmove(d) {
@@ -327,6 +354,29 @@ document.addEventListener("keydown", event => {
   // do something
 });
 
+//document.getElementById("unit").addEventListener("change", {
+
+
+
+document.getElementById("unit").addEventListener('change',  function() {
+
+	 if(this.value=="pj") { unitfactor=1.;  }
+	 else { unitfactor = 0.2777777;	 }
+
+	 var nodeValues = document.getElementsByClassName("nodeValue");
+	 for (let i = 0; i < nodeValues.length; i++) {
+	   let a=nodeValues.item(i);
+	   a.innerHTML=formatNumber(2,a.__data__.value*unitfactor);
+	 }
+
+	 var linkTexts = document.getElementsByClassName("linkText");
+	 for (let i = 0; i < linkTexts.length; i++) {
+	   let a=linkTexts.item(i);
+	   a.innerHTML=formatNumber(2,a.__data__.value*unitfactor);
+	 }
+
+});
+
 
 function saveSvgImg(svg) {
 
@@ -350,6 +400,63 @@ function saveSvg(svgEl, name) {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
+}
+
+function precise(x) {
+  return Number.parseFloat(x).toPrecision(2);
+}
+
+function formatNumber (precision, number) {
+  if (typeof number === 'undefined' || number === null) return ''
+
+  if (number === 0) return '0'
+
+  const roundedValue = round(precision, number)
+  const floorValue = Math.floor(roundedValue)
+
+  const isInteger = Math.abs(floorValue - roundedValue) < Number.EPSILON
+
+  const numberOfFloorDigits = String(floorValue).length
+  const numberOfDigits = String(roundedValue).length
+
+  if (numberOfFloorDigits > precision) {
+    return String(floorValue)
+  } else {
+    const padding = isInteger ? precision - numberOfFloorDigits : precision - numberOfDigits + 1
+
+    if (padding > 0) {
+      if (isInteger) {
+        return `${String(floorValue)}.${'0'.repeat(padding)}`
+      } else {
+        return `${String(roundedValue)}${'0'.repeat(padding)}`
+      }
+    } else {
+      return String(roundedValue)
+    }
+  }
+}
+
+function round (precision, number) {
+  return parseFloat(number.toPrecision(precision))
+}
+
+
+function changeUnit(e) {
+ b=document.getElementById("unit");
+ if(document.getElementById("unit").innerHTML=="(PJ)") { 
+	unitfactor=1.; 
+ }
+ else { 
+	unitfactor = 0.2777777; 
+ }
+
+ var nodeValues = document.getElementsByClassName("nodeValue");
+ for (let i = 0; i < nodeValues.length; i++) {
+   let a=nodeValues.item(i);
+   a.innerHTML=formatNumber(2,a.__data__.value*unitfactor);
+   //nodeValues.item(i).text(function(d) { return formatNumber(2,d.value*unitfactor); })
+ }
+ 
 }
 
 </script>

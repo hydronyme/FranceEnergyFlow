@@ -5,6 +5,7 @@ d3.sankey = function() {
 	  nodeMinHeight = 40,
 	  linkFactor = 3,
 	  linkSlope = 200,
+	  valueFactor = 1,
 	  ky,
       size = [1, 1],
       nodes = [],
@@ -153,9 +154,11 @@ d3.sankey = function() {
     //
     moveSinksRight(x);
 	nodes.forEach(function(node) {
-		if(node.name=="hors énergie") node.x=2;
-		if(node.name=="export") node.x=2;
-		if(node.x==3) node.x=2.7;
+		if(node.name=="hors énergie") node.x=3;
+		if(node.name=="export") node.x=3;
+		if(node.name=="réseau électrique") node.x=1.5;
+		if(node.x==3) node.x=2.5;
+		if(node.x==4) node.x=3.3;
 	});
     scaleNodeBreadths((size[0] - nodeWidth) / (x - 1));
   }
@@ -298,8 +301,10 @@ d3.sankey = function() {
     nodes.forEach(function(node) {
 		node.textx=node.dx/2;
 		node.texty=Math.max(node.dy/2-10,10);
-		if(node.name=="prod élec") 
+		if(node.name=="centrale électrique") 
 			node.y=0;
+		if(node.name=="réseau électrique") 
+			node.y=240;
 		if(node.name=="rejet") 
 			node.y=0;
 		if(node.name=="énergie utile") 
